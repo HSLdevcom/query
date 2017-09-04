@@ -439,10 +439,32 @@ function addCountry(vs) {
 
 }
 
+function addPostCode(vs) {
+  var o = addPrimary(
+    vs.var('input:postcode').toString(),
+    'postalcode',
+    [
+      'parent.postalcode'
+    ],
+    false
+  );
+
+  // same position in hierarchy as borough according to WOF
+  // https://github.com/whosonfirst/whosonfirst-placetypes#here-is-a-pretty-picture
+  addSecLocality(vs, o);
+  addSecCounty(vs, o);
+  addSecRegion(vs, o);
+  addSecCountry(vs, o);
+
+  return o;
+
+}
+
+
 Layout.prototype.render = function( vs ){
   var q = Layout.base( vs );
 
-  var funcScoreShould = q.query.function_score.query.filtered.query.bool.should;
+  var funcScoreShould = q.query.function_score.query.bool.should;
 
   if (vs.isset('input:query')) {
     funcScoreShould.push(addQuery(vs));
@@ -452,6 +474,9 @@ Layout.prototype.render = function( vs ){
       funcScoreShould.push(addHouseNumberAndStreet(vs));
     }
     funcScoreShould.push(addStreet(vs));
+  }
+  if (vs.isset('input:postcode')) {
+    funcScoreShould.push(addPostCode(vs));
   }
   if (vs.isset('input:neighbourhood')) {
     funcScoreShould.push(addNeighbourhood(vs));
@@ -494,7 +519,14 @@ Layout.prototype.render = function( vs ){
     this._filter.forEach( function( view ){
       var rendered = view( vs );
       if( rendered ){
-        q.query.function_score.query.filtered.filter.bool.must.push( rendered );
+        if( !q.query.function_score.query.bool.hasOwnProperty( 'filter' ) ){
+          q.query.function_score.query.bool.filter = {
+            bool: {
+              must: []
+            }
+          };
+        }
+        q.query.function_score.query.bool.filter.bool.must.push( rendered );
       }
     });
   }
