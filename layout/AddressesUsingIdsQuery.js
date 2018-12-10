@@ -32,7 +32,78 @@ function createAddressShould(vs) {
   }
 
   return should;
+}
 
+function createUnitAndAddressShould(vs) {
+  const should = {
+    bool: {
+      _name: 'fallback.address',
+      must: [
+        {
+          match_phrase: {
+            'address_parts.unit': vs.var('input:unit')
+          }
+        },
+        {
+          match_phrase: {
+            'address_parts.number': vs.var('input:housenumber')
+          }
+        },
+        {
+          match_phrase: {
+            'address_parts.street': vs.var('input:street')
+          }
+        }
+      ],
+      filter: {
+        term: {
+          layer: 'address'
+        }
+      }
+    }
+  };
+
+  if (vs.isset('boost:address')) {
+    should.bool.boost = vs.var('boost:address');
+  }
+
+  return should;
+}
+
+function createPostcodeAndAddressShould(vs) {
+  const should = {
+    bool: {
+      _name: 'fallback.address',
+      must: [
+        {
+          match_phrase: {
+            'address_parts.zip': vs.var('input:postcode')
+          }
+        },
+        {
+          match_phrase: {
+            'address_parts.number': vs.var('input:housenumber')
+          }
+        },
+        {
+          match_phrase: {
+            'address_parts.street': vs.var('input:street')
+          }
+        }
+      ],
+      filter: {
+        term: {
+          layer: 'address'
+        }
+      }
+    }
+  };
+
+  if (vs.isset('boost:address')) {
+    should.bool.boost = vs.var('boost:address');
+  }
+
+  return should;
 }
 
 function createStreetShould(vs) {
@@ -92,9 +163,16 @@ class AddressesUsingIdsQuery extends Query {
       track_scores: vs.var('track_scores')
     };
 
-    // add housenumber/street if both are available
-    if (vs.isset('input:housenumber')) {
-      base.query.function_score.query.bool.should.push( createAddressShould(vs) );
+    // add unit/housenumber/street if available
+    if (vs.isset('input:housenumber') && vs.isset('input:postcode')) {
+      base.query.function_score.query.bool.should.push(createPostcodeAndAddressShould(vs));
+    }
+    // add unit/housenumber/street if available
+    if (vs.isset('input:housenumber') && vs.isset('input:unit')) {
+      base.query.function_score.query.bool.should.push(createUnitAndAddressShould(vs));
+    }
+    else if (vs.isset('input:housenumber')) {
+      base.query.function_score.query.bool.should.push(createAddressShould(vs));
     }
 
     // if there are layer->id mappings, add the layers with non-empty ids
@@ -139,9 +217,10 @@ class AddressesUsingIdsQuery extends Query {
       // add filter.bool.must, creating intermediate objects if they don't exist
       //  using _.set does away with the need to check for object existence
       // _.compact removes falsey values from arrays
-      _.set(base.query.function_score.query.bool, 'filter.bool', {
-        must: _.compact(this._filter.map(view => view(vs)))
-      });
+      _.set(
+        base.query.function_score.query.bool,
+        'filter.bool.must',
+        _.compact(this._filter.map(view => view(vs))));
 
     }
 
