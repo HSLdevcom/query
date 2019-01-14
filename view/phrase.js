@@ -37,5 +37,9 @@ module.exports = function( vs ){
     };
   }
 
+  if (vs.isset('phrase:fuzziness')) {
+    view.match[ vs.var('phrase:field') ].fuzziness = vs.var('phrase:fuzziness');
+  }
+
   return view;
 };

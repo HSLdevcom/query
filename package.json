@@ -1,19 +1,17 @@
 {
   "name": "pelias-query",
-  "version": "0.0.0-semantic-release",
+  "version": "0.0.0-development",
   "description": "An Elasticsearch query builder for Pelias",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=8.0.0"
   },
   "main": "index.js",
   "scripts": {
     "lint": "jshint .",
-    "units": "node test/run.js | tap-spec",
+    "units": "./bin/units",
     "test": "npm run units",
     "validate": "npm ls",
-    "travis": "npm run check-dependencies && npm run test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "check-dependencies": "node_modules/.bin/npm-check --production"
+    "travis": "npm test"
   },
   "repository": {
     "type": "git",
@@ -30,18 +28,18 @@
     "lodash": "^4.14.1"
   },
   "devDependencies": {
-    "deep-diff": "^0.3.4",
+    "deep-diff": "^1.0.0",
     "jshint": "^2.5.6",
-    "npm-check": "git://github.com/orangejulius/npm-check.git#disable-update-check",
     "precommit-hook": "^3.0.0",
-    "tap-spec": "^4.1.0",
-    "tape": "^4.2.0",
-    "semantic-release": "^7.0.1"
+    "tap-spec": "^5.0.0",
+    "tape": "^4.2.0"
   },
   "pre-commit": [
     "lint",
     "validate",
-    "test",
-    "check-dependencies"
-  ]
+    "test"
+  ],
+  "release": {
+    "success": []
+  }
 }

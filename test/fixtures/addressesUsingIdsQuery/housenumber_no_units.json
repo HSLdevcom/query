@@ -28,11 +28,6 @@
                 "must": [
                   {
                     "match_phrase": {
-                      "address_parts.unit": "unit value"
-                    }
-                  },
-                  {
-                    "match_phrase": {
                       "address_parts.number": "housenumber value"
                     }
                   },
@@ -51,13 +46,9 @@
             }
           ]
         }
-      },
-      "functions": [
-        { "score field 1": "score value 1" },
-        { "score field 2": "score value 2" }
-      ]
+      }
     }
   },
-  "size": "size value" ,
+  "size": "size value",
   "track_scores": "track_scores value"
 }
