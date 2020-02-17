@@ -11,13 +11,18 @@ module.exports.layout = {
 };
 
 module.exports.view = {
+  leaf: {
+    match_all: require('./view/leaf/match_all'),
+    match_phrase: require('./view/leaf/match_phrase'),
+    match: require('./view/leaf/match'),
+    multi_match: require('./view/leaf/multi_match')
+  },
   focus: require('./view/focus'),
   focus_only_function: require('./view/focus_only_function'),
   popularity: require('./view/popularity'),
   population: require('./view/population'),
   popularity_only_function: require('./view/popularity_only_function'),
   population_only_function: require('./view/population_only_function'),
-  localregions: require('./view/localregions'),
   ngrams: require('./view/ngrams'),
   phrase: require('./view/phrase'),
   address: require('./view/address'),
@@ -30,7 +35,6 @@ module.exports.view = {
   boundary_polygon: require('./view/boundary_polygon'),
   boundary_country: require('./view/boundary_country'),
   sort_distance: require('./view/sort_distance'),
-  sort_numeric_script: require('./view/sort_numeric_script'),
   sources: require('./view/sources'),
   layers: require('./view/layers'),
   boundary_gid: require('./view/boundary_gid')

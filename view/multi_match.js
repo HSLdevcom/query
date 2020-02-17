@@ -31,5 +31,17 @@ module.exports = function( vs, fields_with_boosts, analyzer, query_var ){
   view.multi_match.query = vs.var(query_var);
   view.multi_match.analyzer = analyzer;
 
+  if (vs.isset('multi_match:type')) {
+    view.multi_match.type = vs.var('multi_match:type');
+  }
+
+  if (vs.isset('multi_match:operator')) {
+    view.multi_match.operator = vs.var('multi_match:operator');
+  }
+
+  if (vs.isset('multi_match:cutoff_frequency')) {
+    view.multi_match.cutoff_frequency = vs.var('multi_match:cutoff_frequency');
+  }
+
   return view;
 };

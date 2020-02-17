@@ -8,6 +8,8 @@
 var _ = require('lodash');
 var baseQuery = require('./baseQuery');
 
+const match_phrase = require('../lib/leaf/match_phrase');
+
 function Layout(){
   this._score = [];
   this._filter = [];
@@ -68,11 +70,9 @@ function addSecondary(value, fields) {
 function addSecPostCode(vs, o) {
   // add postcode if specified
   if (vs.isset('input:postcode')) {
-    o.bool.should.push({
-      match_phrase: {
-        'address_parts.zip': vs.var('input:postcode').toString()
-      }
-    });
+    o.bool.should.push(
+      match_phrase('address_parts.zip', vs.var('input:postcode'))
+    );
   }
 }
 
@@ -190,21 +190,9 @@ function addUnitAndHouseNumberAndStreet(vs) {
     bool: {
       _name: 'fallback.address',
       must: [
-        {
-          match_phrase: {
-            'address_parts.unit': vs.var('input:unit').toString()
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.number': vs.var('input:housenumber').toString()
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street').toString()
-          }
-        }
+        match_phrase('address_parts.unit', vs.var('input:unit')),
+        match_phrase('address_parts.number', vs.var('input:housenumber')),
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       should: [],
       filter: {
@@ -238,7 +226,9 @@ function addHouseNumber(vs) {
       must: [
         {
           match_phrase: {
-            'address_parts.number': vs.var('input:housenumber').toString()
+            'address_parts.number': {
+              query: vs.var('input:housenumber').toString()
+            }
           }
         }
       ],
@@ -271,16 +261,8 @@ function addHouseNumberAndStreet(vs) {
     bool: {
       _name: 'fallback.address',
       must: [
-        {
-          match_phrase: {
-            'address_parts.number': vs.var('input:housenumber').toString()
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street').toString()
-          }
-        }
+        match_phrase('address_parts.number', vs.var('input:housenumber')),
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       should: [],
       filter: {
@@ -312,11 +294,7 @@ function addStreet(vs) {
     bool: {
       _name: 'fallback.street',
       must: [
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street').toString()
-          }
-        }
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       should: [],
       filter: {
