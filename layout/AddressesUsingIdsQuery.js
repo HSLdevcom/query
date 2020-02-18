@@ -1,23 +1,14 @@
-'use strict';
-
 const _ = require('lodash');
 const Query = require('./Query');
+const match_phrase = require('../lib/leaf/match_phrase');
 
 function createAddressShould(vs) {
   const should = {
     bool: {
       _name: 'fallback.address',
       must: [
-        {
-          match_phrase: {
-            'address_parts.number': vs.var('input:housenumber')
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street')
-          }
-        }
+        match_phrase('address_parts.number', vs.var('input:housenumber')),
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       filter: {
         term: {
@@ -39,21 +30,9 @@ function createUnitAndAddressShould(vs) {
     bool: {
       _name: 'fallback.address',
       must: [
-        {
-          match_phrase: {
-            'address_parts.unit': vs.var('input:unit')
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.number': vs.var('input:housenumber')
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street')
-          }
-        }
+        match_phrase('address_parts.unit', vs.var('input:unit')),
+        match_phrase('address_parts.number', vs.var('input:housenumber')),
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       filter: {
         term: {
@@ -75,21 +54,9 @@ function createPostcodeAndAddressShould(vs) {
     bool: {
       _name: 'fallback.address',
       must: [
-        {
-          match_phrase: {
-            'address_parts.zip': vs.var('input:postcode')
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.number': vs.var('input:housenumber')
-          }
-        },
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street')
-          }
-        }
+        match_phrase('address_parts.zip', vs.var('input:postcode')),
+        match_phrase('address_parts.number', vs.var('input:housenumber')),
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       filter: {
         term: {
@@ -111,11 +78,7 @@ function createStreetShould(vs) {
     bool: {
       _name: 'fallback.street',
       must: [
-        {
-          match_phrase: {
-            'address_parts.street': vs.var('input:street')
-          }
-        }
+        match_phrase('address_parts.street', vs.var('input:street'), { slop: vs.var('address:street:slop') })
       ],
       filter: {
         term: {
@@ -151,7 +114,7 @@ class AddressesUsingIdsQuery extends Query {
         function_score: {
           query: {
             bool: {
-              minimum_number_should_match: 1,
+              minimum_should_match: 1,
               should: [
                 createStreetShould(vs)
               ]
@@ -198,10 +161,10 @@ class AddressesUsingIdsQuery extends Query {
         return acc;
       }, []);
 
-      // add filter.bool.minimum_number_should_match and filter.bool.should,
+      // add filter.bool.minimum_should_match and filter.bool.should,
       //  creating intermediate objects as it goes
       _.set(base.query.function_score.query.bool, 'filter.bool', {
-        minimum_number_should_match: 1,
+        minimum_should_match: 1,
         should: id_filters
       });
 
