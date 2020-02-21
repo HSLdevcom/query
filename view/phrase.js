@@ -15,7 +15,6 @@ module.exports = function( vs ){
   if (vs.isset('phrase:multifield')) {
       // multi match query
     view = { 'multi_match': {
-      type: 'phrase',
       analyzer: vs.var('phrase:analyzer'),
       boost: vs.var('phrase:boost'),
       slop: vs.var('phrase:slop'),
