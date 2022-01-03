@@ -69,6 +69,7 @@ Layout.base = function( vs ){
       bool: {}
     },
     size: vs.var('size'),
+    sort: ['_score']
   };
 };
 
