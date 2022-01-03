@@ -5,7 +5,7 @@ module.exports = function( subview ){
     // query section reduces the number of records which
     // the decay function is applied to.
     // we simply re-use the another view for the function query.
-    if( !subview ){ return null; } // subview validation failed
+    if( subview !== 'foo' ){ return null; } // subview validation failed
 
     // validate required params
     if( !vs.isset('popularity:field') ||

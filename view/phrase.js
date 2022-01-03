@@ -17,10 +17,13 @@ module.exports = function( vs ){
     view = { 'multi_match': {
       analyzer: vs.var('phrase:analyzer'),
       boost: vs.var('phrase:boost'),
-      slop: vs.var('phrase:slop'),
       query: vs.var('input:name'),
-      fields: vs.var('phrase:multifield')
+      fields: vs.var('phrase:multifield'),
     }};
+
+    if (vs.isset('multi_match:fuzziness')) {
+      view.multi_match.fuzziness = vs.var('multi_match:fuzziness');
+    }
   }
   else {
     // base view
@@ -34,10 +37,6 @@ module.exports = function( vs ){
       slop: vs.var('phrase:slop'),
       query: vs.var('input:name')
     };
-  }
-
-  if (vs.isset('phrase:fuzziness')) {
-    view.match[ vs.var('phrase:field') ].fuzziness = vs.var('phrase:fuzziness');
   }
 
   if (vs.isset('phrase:cutoff_frequency')) {
