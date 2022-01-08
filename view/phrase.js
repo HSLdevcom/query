@@ -24,6 +24,9 @@ module.exports = function( vs ){
     if (vs.isset('multi_match:fuzziness')) {
       view.multi_match.fuzziness = vs.var('multi_match:fuzziness');
     }
+    if (vs.isset('phrase:type')) {
+      view.multi_match.type = vs.var('phrase:type');
+    }
   }
   else {
     // base view
